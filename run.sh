@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cargo run > image.ppm
+cargo run -- --output-file image.ppm
 
 open image.ppm
