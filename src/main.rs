@@ -1,9 +1,14 @@
 use clap::{command, Parser};
 use color::Color;
+use point::Point3;
+use ray::Ray;
 use std::fs::File;
 use std::io::Write;
+use vec3::Vec3;
 
 mod color;
+mod point;
+mod ray;
 mod vec3;
 
 const IMAGE_WIDTH: u32 = 256;
@@ -45,6 +50,12 @@ fn main() -> std::io::Result<()> {
     }
 
     println!("Done.");
+
+    let ray = Ray::new(Point3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 1.0, 1.0));
+
+    println!("{}", ray.origin());
+    println!("{}", ray.direction());
+    println!("{}", ray.at(0.5));
 
     Ok(())
 }

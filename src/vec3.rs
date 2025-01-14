@@ -148,3 +148,11 @@ impl fmt::Display for Vec3 {
         write!(f, "{} {} {}", self.e[0], self.e[1], self.e[2])
     }
 }
+
+impl Copy for Vec3 {}
+
+impl Clone for Vec3 {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
