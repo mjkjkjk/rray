@@ -127,6 +127,14 @@ impl Vec3 {
         let len = self.length();
         self / len
     }
+
+    pub fn dot(self, other: Self) -> f64 {
+        dot(self, other)
+    }
+
+    pub fn cross(self, other: Self) -> Self {
+        cross(self, other)
+    }
 }
 
 pub fn cross(u: Vec3, v: Vec3) -> Vec3 {

@@ -24,6 +24,21 @@ fn ray_color(ray: &Ray) -> Color {
     (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }
 
+fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> f64 {
+    let oc = center - ray.origin();
+
+    let a = ray.direction().length_squared();
+    let h = ray.direction().dot(oc);
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = h * h - a * c;
+
+    if discriminant < 0.0 {
+        -1.0
+    } else {
+        (h - discriminant.sqrt()) / a
+    }
+}
+
 fn main() -> std::io::Result<()> {
     let aspect_ratio: f64 = 16.0 / 9.0;
     let image_width: u32 = 400;
@@ -58,7 +73,14 @@ fn main() -> std::io::Result<()> {
             let pixel_center =
                 pixel00_loc + (i as f64 * pixel_delta_u) + (j as f64 * pixel_delta_v);
             let ray = Ray::new(camera_center, pixel_center - camera_center);
-            let pixel_color = ray_color(&ray);
+            let hit_sphere_result = hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, &ray);
+            let pixel_color = if hit_sphere_result > 0.0 {
+                let normal =
+                    (ray.at(hit_sphere_result) - Point3::new(0.0, 0.0, -1.0)).unit_vector();
+                0.5 * Color::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0)
+            } else {
+                ray_color(&ray)
+            };
 
             write_color(&mut file, pixel_color)?;
         }
