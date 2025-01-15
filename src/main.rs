@@ -1,14 +1,18 @@
 use clap::{command, Parser};
 use color::{write_color, Color};
+use hittable::Hittable;
 use point::Point3;
 use ray::Ray;
+use sphere::Sphere;
 use std::fs::File;
 use std::io::Write;
 use vec3::Vec3;
 
 mod color;
+mod hittable;
 mod point;
 mod ray;
+mod sphere;
 mod vec3;
 
 #[derive(Parser)]
@@ -66,6 +70,8 @@ fn main() -> std::io::Result<()> {
     // header
     writeln!(file, "P3\n{} {}\n255", image_width, image_height)?;
 
+    let sphere = Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5);
+
     // pixel data
     for j in 0..image_height {
         println!("Scanlines remaining: {}", image_height - j);
@@ -73,10 +79,9 @@ fn main() -> std::io::Result<()> {
             let pixel_center =
                 pixel00_loc + (i as f64 * pixel_delta_u) + (j as f64 * pixel_delta_v);
             let ray = Ray::new(camera_center, pixel_center - camera_center);
-            let hit_sphere_result = hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, &ray);
-            let pixel_color = if hit_sphere_result > 0.0 {
-                let normal =
-                    (ray.at(hit_sphere_result) - Point3::new(0.0, 0.0, -1.0)).unit_vector();
+            let hit_result = sphere.hit(&ray, 0.0, f64::INFINITY);
+            let pixel_color = if hit_result.hit {
+                let normal = hit_result.hit_record.unwrap().normal;
                 0.5 * Color::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0)
             } else {
                 ray_color(&ray)
