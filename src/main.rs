@@ -1,6 +1,7 @@
 use clap::{command, Parser};
 use color::{write_color, Color};
 use hittable::Hittable;
+use hittable_list::HittableList;
 use point::Point3;
 use ray::Ray;
 use sphere::Sphere;
@@ -10,6 +11,7 @@ use vec3::Vec3;
 
 mod color;
 mod hittable;
+mod hittable_list;
 mod point;
 mod ray;
 mod sphere;
@@ -72,6 +74,8 @@ fn main() -> std::io::Result<()> {
 
     let sphere = Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5);
 
+    let hittable_list: HittableList = vec![Box::new(sphere)];
+
     // pixel data
     for j in 0..image_height {
         println!("Scanlines remaining: {}", image_height - j);
@@ -79,7 +83,8 @@ fn main() -> std::io::Result<()> {
             let pixel_center =
                 pixel00_loc + (i as f64 * pixel_delta_u) + (j as f64 * pixel_delta_v);
             let ray = Ray::new(camera_center, pixel_center - camera_center);
-            let hit_result = sphere.hit(&ray, 0.0, f64::INFINITY);
+
+            let hit_result = hittable_list.hit(&ray, 0.0, f64::INFINITY);
             let pixel_color = if hit_result.hit {
                 let normal = hit_result.hit_record.unwrap().normal;
                 0.5 * Color::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0)
