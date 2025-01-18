@@ -103,6 +103,10 @@ impl Vec3 {
         Self { e: [e0, e1, e2] }
     }
 
+    pub fn from_vec3(v: Vec3) -> Self {
+        Self { e: [v.e[0], v.e[1], v.e[2]] }
+    }
+
     pub fn x(&self) -> f64 {
         self.e[0]
     }

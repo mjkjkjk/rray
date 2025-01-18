@@ -24,24 +24,14 @@ struct Args {
     output_file: String,
 }
 
-fn ray_color(ray: &Ray) -> Color {
-    let unit_direction = ray.direction().unit_vector();
-    let t = 0.5 * (unit_direction.y() + 1.0);
-    (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
-}
-
-fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> f64 {
-    let oc = center - ray.origin();
-
-    let a = ray.direction().length_squared();
-    let h = ray.direction().dot(oc);
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = h * h - a * c;
-
-    if discriminant < 0.0 {
-        -1.0
+fn ray_color(ray: &Ray, world: &HittableList) -> Color {
+    if let Some(hit_result) = world.hit(ray, 0.0, f64::INFINITY) {
+        let normal = hit_result.normal;
+        0.5 * Color::from_vec3(normal + Vec3::new(1.0, 1.0, 1.0))
     } else {
-        (h - discriminant.sqrt()) / a
+        let unit_direction = ray.direction().unit_vector();
+        let t = 0.5 * (unit_direction.y() + 1.0);
+        (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
     }
 }
 
@@ -74,7 +64,11 @@ fn main() -> std::io::Result<()> {
 
     let sphere = Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5);
 
-    let hittable_list: HittableList = vec![Box::new(sphere)];
+    let mut world: HittableList = vec![
+        Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)),
+        Box::new(Sphere::new(Point3::new(4.0, 2.0, -6.0), 0.3)),
+        Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)),
+    ];
 
     // pixel data
     for j in 0..image_height {
@@ -84,12 +78,12 @@ fn main() -> std::io::Result<()> {
                 pixel00_loc + (i as f64 * pixel_delta_u) + (j as f64 * pixel_delta_v);
             let ray = Ray::new(camera_center, pixel_center - camera_center);
 
-            let hit_result = hittable_list.hit(&ray, 0.0, f64::INFINITY);
+            let hit_result = world.hit(&ray, 0.0, f64::INFINITY);
             let pixel_color = if let Some(hit_result) = hit_result {
                 let normal = hit_result.normal;
                 0.5 * Color::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0)
             } else {
-                ray_color(&ray)
+                ray_color(&ray, &world)
             };
 
             write_color(&mut file, pixel_color)?;
