@@ -1,6 +1,7 @@
 use crate::hittable::{HitRecord, HitResult, Hittable};
 use crate::point::Point3;
 use crate::ray::Ray;
+use crate::vec3::Vec3;
 use std::cmp;
 
 pub struct Sphere {
@@ -44,15 +45,29 @@ impl Hittable for Sphere {
             }
         }
 
+        let rec_point = ray.at(root);
+        let face_normal =
+            self.calculate_face_normal(ray, (rec_point - self.center) / self.radius);
+
         let record = HitRecord {
-            point: ray.at(root),
-            normal: (ray.at(root) - self.center) / self.radius,
+            point: rec_point,
+            normal: face_normal,
             t: root,
+            front_face: face_normal.dot(ray.direction()) < 0.0,
         };
 
         HitResult {
             hit: true,
             hit_record: Some(record),
+        }
+    }
+
+    fn calculate_face_normal(&self, ray: &Ray, outward_normal: Vec3) -> Vec3 {
+        let front_face = ray.direction().dot(outward_normal) < 0.0;
+        if front_face {
+            outward_normal
+        } else {
+            -outward_normal
         }
     }
 }
