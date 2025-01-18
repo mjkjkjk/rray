@@ -85,8 +85,8 @@ fn main() -> std::io::Result<()> {
             let ray = Ray::new(camera_center, pixel_center - camera_center);
 
             let hit_result = hittable_list.hit(&ray, 0.0, f64::INFINITY);
-            let pixel_color = if hit_result.hit {
-                let normal = hit_result.hit_record.unwrap().normal;
+            let pixel_color = if let Some(hit_result) = hit_result {
+                let normal = hit_result.normal;
                 0.5 * Color::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0)
             } else {
                 ray_color(&ray)

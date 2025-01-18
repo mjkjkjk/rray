@@ -10,12 +10,7 @@ pub struct HitRecord {
     pub front_face: bool,
 }
 
-pub struct HitResult {
-    pub hit: bool,
-    pub hit_record: Option<HitRecord>,
-}
-
-impl HitResult {
+impl HitRecord {
     pub fn calculate_face_normal(ray: &Ray, outward_normal: Vec3) -> Vec3 {
         let front_face = ray.direction().dot(outward_normal) < 0.0;
         if front_face {
@@ -27,5 +22,5 @@ impl HitResult {
 }
 
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64) -> HitResult;
+    fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord>;
 }
