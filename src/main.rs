@@ -1,15 +1,9 @@
 use clap::{command, Parser};
-use color::{Color};
-use hittable::Hittable;
 use hittable_list::HittableList;
-use math::interval::Interval;
 use point::Point3;
-use ray::Ray;
 use scene::camera::Camera;
 use sphere::Sphere;
 use std::fs::File;
-
-use vec3::Vec3;
 
 mod color;
 mod hittable;
@@ -28,17 +22,6 @@ struct Args {
     output_file: String,
 }
 
-fn ray_color(ray: &Ray, world: &HittableList) -> Color {
-    if let Some(hit_result) = world.hit(ray, Interval::new(0.0, f64::INFINITY)) {
-        let normal = hit_result.normal;
-        0.5 * Color::from_vec3(normal + Vec3::new(1.0, 1.0, 1.0))
-    } else {
-        let unit_direction = ray.direction().unit_vector();
-        let t = 0.5 * (unit_direction.y() + 1.0);
-        (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
-    }
-}
-
 fn main() -> std::io::Result<()> {
     let aspect_ratio: f64 = 16.0 / 9.0;
     let image_width: u32 = 600;
@@ -54,7 +37,7 @@ fn main() -> std::io::Result<()> {
     ];
 
     let camera_center: Point3 = Point3::new(0.0, 0.0, 0.0);
-    let camera = Camera::new(image_width, aspect_ratio, camera_center, 16);
+    let camera = Camera::new(image_width, aspect_ratio, camera_center, 16, 4);
     camera.render(&world, &mut file);
 
     println!("Done.");

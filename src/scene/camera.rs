@@ -5,7 +5,7 @@ use crate::color::{write_color, Color};
 use crate::hittable::Hittable;
 use crate::hittable_list::HittableList;
 use crate::math::interval::Interval;
-use crate::math::rng::{random_double_range};
+use crate::math::rng::random_double_range;
 use crate::point::Point3;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
@@ -13,13 +13,13 @@ use crate::vec3::Vec3;
 pub struct Camera {
     image_width: u32,
     image_height: u32,
-    aspect_ratio: f64,
     center: Point3,
     pixel00_loc: Point3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
     samples_per_pixel: u32,
     pixel_samples_scale: f64,
+    max_depth: u32,
 }
 
 impl Camera {
@@ -28,6 +28,7 @@ impl Camera {
         aspect_ratio: f64,
         _center: Point3,
         samples_per_pixel: u32,
+        max_depth: u32,
     ) -> Self {
         let image_height = (image_width as f64 / aspect_ratio) as u32;
 
@@ -54,19 +55,19 @@ impl Camera {
         Self {
             image_width,
             image_height,
-            aspect_ratio,
             center,
             pixel00_loc,
             pixel_delta_u,
             pixel_delta_v,
             samples_per_pixel,
             pixel_samples_scale: 1.0 / samples_per_pixel as f64,
+            max_depth,
         }
     }
 
     pub fn render(&self, world: &HittableList, mut file: &mut File) {
         // header
-        writeln!(file, "P3\n{} {}\n255", self.image_width, self.image_height);
+        writeln!(file, "P3\n{} {}\n255", self.image_width, self.image_height).unwrap();
 
         for j in 0..self.image_height {
             println!("Scanlines remaining: {}", self.image_height - j);
@@ -74,17 +75,21 @@ impl Camera {
                 let mut pixel_color = Color::new(0.0, 0.0, 0.0);
                 for _ in 0..self.samples_per_pixel {
                     let r = self.get_ray(i, j);
-                    pixel_color += Self::ray_color(&r, world);
+                    pixel_color += Self::ray_color(&r, self.max_depth, world);
                 }
-                write_color(&mut file, pixel_color * self.pixel_samples_scale);
+                write_color(&mut file, pixel_color * self.pixel_samples_scale).unwrap();
             }
         }
     }
 
-    fn ray_color(ray: &Ray, world: &HittableList) -> Color {
+    fn ray_color(ray: &Ray, max_depth: u32, world: &HittableList) -> Color {
+        if max_depth <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+
         if let Some(hit_result) = world.hit(ray, Interval::new(0.0, f64::INFINITY)) {
-            let normal = hit_result.normal;
-            0.5 * Color::from_vec3(normal + Vec3::new(1.0, 1.0, 1.0))
+            let direction = Vec3::random_on_hemisphere(hit_result.normal);
+            0.5 * Self::ray_color(&Ray::new(hit_result.point, direction), max_depth - 1, world)
         } else {
             let unit_direction = ray.direction().unit_vector();
             let t = 0.5 * (unit_direction.y() + 1.0);

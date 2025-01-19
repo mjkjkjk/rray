@@ -1,5 +1,7 @@
 use std::{fmt, ops};
 
+use crate::math::rng::{random_double, random_double_range};
+
 pub struct Vec3 {
     e: [f64; 3],
 }
@@ -138,12 +140,46 @@ impl Vec3 {
         self / len
     }
 
+    pub fn random_unit_vector() -> Self {
+        loop {
+            let p = Self::random_range(-1.0, 1.0);
+            if 1e-160 <= p.length_squared() && p.length_squared() <= 1.0 {
+                return p.unit_vector();
+            }
+        }
+    }
+
+    pub fn random_on_hemisphere(normal: Self) -> Self {
+        let on_unit_sphere = Self::random_unit_vector();
+        if dot(on_unit_sphere, normal) > 0.0 {
+            on_unit_sphere
+        } else {
+            -on_unit_sphere
+        }
+    }
+
     pub fn dot(self, other: Self) -> f64 {
         dot(self, other)
     }
 
     pub fn cross(self, other: Self) -> Self {
         cross(self, other)
+    }
+
+    pub fn random() -> Self {
+        Self {
+            e: [random_double(), random_double(), random_double()],
+        }
+    }
+
+    pub fn random_range(min: f64, max: f64) -> Self {
+        Self {
+            e: [
+                random_double_range(min, max),
+                random_double_range(min, max),
+                random_double_range(min, max),
+            ],
+        }
     }
 }
 
