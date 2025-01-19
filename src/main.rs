@@ -2,6 +2,7 @@ use clap::{command, Parser};
 use color::{write_color, Color};
 use hittable::Hittable;
 use hittable_list::HittableList;
+use math::interval::Interval;
 use point::Point3;
 use ray::Ray;
 use sphere::Sphere;
@@ -12,6 +13,7 @@ use vec3::Vec3;
 mod color;
 mod hittable;
 mod hittable_list;
+mod math;
 mod point;
 mod ray;
 mod sphere;
@@ -25,7 +27,7 @@ struct Args {
 }
 
 fn ray_color(ray: &Ray, world: &HittableList) -> Color {
-    if let Some(hit_result) = world.hit(ray, 0.0, f64::INFINITY) {
+    if let Some(hit_result) = world.hit(ray, Interval::new(0.0, f64::INFINITY)) {
         let normal = hit_result.normal;
         0.5 * Color::from_vec3(normal + Vec3::new(1.0, 1.0, 1.0))
     } else {
@@ -78,7 +80,7 @@ fn main() -> std::io::Result<()> {
                 pixel00_loc + (i as f64 * pixel_delta_u) + (j as f64 * pixel_delta_v);
             let ray = Ray::new(camera_center, pixel_center - camera_center);
 
-            let hit_result = world.hit(&ray, 0.0, f64::INFINITY);
+            let hit_result = world.hit(&ray, Interval::new(0.0, f64::INFINITY));
             let pixel_color = if let Some(hit_result) = hit_result {
                 let normal = hit_result.normal;
                 0.5 * Color::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0)
