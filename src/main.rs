@@ -1,5 +1,5 @@
 use clap::{command, Parser};
-use color::{write_color, Color};
+use color::{Color};
 use hittable::Hittable;
 use hittable_list::HittableList;
 use math::interval::Interval;
@@ -8,7 +8,7 @@ use ray::Ray;
 use scene::camera::Camera;
 use sphere::Sphere;
 use std::fs::File;
-use std::io::Write;
+
 use vec3::Vec3;
 
 mod color;

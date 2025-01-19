@@ -5,7 +5,7 @@ use crate::color::{write_color, Color};
 use crate::hittable::Hittable;
 use crate::hittable_list::HittableList;
 use crate::math::interval::Interval;
-use crate::math::rng::{random_double, random_double_range};
+use crate::math::rng::{random_double_range};
 use crate::point::Point3;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
@@ -26,7 +26,7 @@ impl Camera {
     pub fn new(
         image_width: u32,
         aspect_ratio: f64,
-        center: Point3,
+        _center: Point3,
         samples_per_pixel: u32,
     ) -> Self {
         let image_height = (image_width as f64 / aspect_ratio) as u32;

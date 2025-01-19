@@ -2,8 +2,8 @@ use crate::hittable::{HitRecord, Hittable};
 use crate::math::interval::Interval;
 use crate::point::Point3;
 use crate::ray::Ray;
-use crate::vec3::Vec3;
-use std::cmp;
+
+
 
 pub struct Sphere {
     center: Point3,

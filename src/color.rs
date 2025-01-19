@@ -1,4 +1,4 @@
-use crate::{math::interval::Interval, vec3::Vec3};
+use crate::{vec3::Vec3};
 use std::io::Write;
 pub type Color = Vec3;
 
