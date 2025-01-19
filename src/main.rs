@@ -41,7 +41,7 @@ fn ray_color(ray: &Ray, world: &HittableList) -> Color {
 
 fn main() -> std::io::Result<()> {
     let aspect_ratio: f64 = 16.0 / 9.0;
-    let image_width: u32 = 400;
+    let image_width: u32 = 600;
 
     let args = Args::parse();
 
@@ -54,7 +54,7 @@ fn main() -> std::io::Result<()> {
     ];
 
     let camera_center: Point3 = Point3::new(0.0, 0.0, 0.0);
-    let camera = Camera::new(image_width, aspect_ratio, camera_center);
+    let camera = Camera::new(image_width, aspect_ratio, camera_center, 16);
     camera.render(&world, &mut file);
 
     println!("Done.");
