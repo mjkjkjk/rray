@@ -87,9 +87,9 @@ impl Camera {
             return Color::new(0.0, 0.0, 0.0);
         }
 
-        if let Some(hit_result) = world.hit(ray, Interval::new(0.0, f64::INFINITY)) {
-            let direction = Vec3::random_on_hemisphere(hit_result.normal);
-            0.5 * Self::ray_color(&Ray::new(hit_result.point, direction), max_depth - 1, world)
+        if let Some(hit_result) = world.hit(ray, Interval::new(0.01, f64::INFINITY)) {
+            let direction = hit_result.normal + Vec3::random_unit_vector();
+            0.1 * Self::ray_color(&Ray::new(hit_result.point, direction), max_depth - 1, world)
         } else {
             let unit_direction = ray.direction().unit_vector();
             let t = 0.5 * (unit_direction.y() + 1.0);

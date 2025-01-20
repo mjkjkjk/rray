@@ -24,7 +24,7 @@ struct Args {
 
 fn main() -> std::io::Result<()> {
     let aspect_ratio: f64 = 16.0 / 9.0;
-    let image_width: u32 = 600;
+    let image_width: u32 = 700;
 
     let args = Args::parse();
 
