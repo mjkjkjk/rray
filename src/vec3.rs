@@ -112,7 +112,9 @@ impl Vec3 {
     }
 
     pub fn from_vec3(v: Vec3) -> Self {
-        Self { e: [v.e[0], v.e[1], v.e[2]] }
+        Self {
+            e: [v.e[0], v.e[1], v.e[2]],
+        }
     }
 
     pub fn x(&self) -> f64 {
@@ -181,6 +183,11 @@ impl Vec3 {
             ],
         }
     }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        self.e[0].abs() < s && self.e[1].abs() < s && self.e[2].abs() < s
+    }
 }
 
 pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
@@ -191,6 +198,10 @@ pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
             u.e[0] * v.e[1] - u.e[1] * v.e[0],
         ],
     }
+}
+
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+    v - 2.0 * dot(v, n) * n
 }
 
 pub fn dot(u: Vec3, v: Vec3) -> f64 {

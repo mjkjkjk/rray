@@ -8,6 +8,7 @@ use std::fs::File;
 mod color;
 mod hittable;
 mod hittable_list;
+mod material;
 mod math;
 mod point;
 mod ray;
