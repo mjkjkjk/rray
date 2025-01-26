@@ -1,20 +1,21 @@
 use crate::hittable::{HitRecord, Hittable};
+use crate::material::{Material, ScatterResult};
 use crate::math::interval::Interval;
 use crate::point::Point3;
 use crate::ray::Ray;
 
-
-
 pub struct Sphere {
     center: Point3,
     radius: f64,
+    material: Box<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64) -> Self {
+    pub fn new(center: Point3, radius: f64, material: Box<dyn Material>) -> Self {
         Self {
             center,
             radius: radius.max(0.0),
+            material,
         }
     }
 }
@@ -46,11 +47,22 @@ impl Hittable for Sphere {
         let normal = HitRecord::calculate_face_normal(ray, outward_normal);
         let front_face = ray.direction().dot(outward_normal) < 0.0;
 
+        let hit_record = HitRecord {
+            point,
+            normal,
+            t: root,
+            front_face,
+            scatter_result: None,
+        };
+
+        let scatter_result = self.material.scatter(ray, &hit_record);
+
         Some(HitRecord {
             point,
             normal,
             t: root,
             front_face,
+            scatter_result,
         })
     }
 }

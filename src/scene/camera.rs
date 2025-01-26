@@ -88,13 +88,16 @@ impl Camera {
         }
 
         if let Some(hit_result) = world.hit(ray, Interval::new(0.01, f64::INFINITY)) {
-            let direction = hit_result.normal + Vec3::random_unit_vector();
-            0.1 * Self::ray_color(&Ray::new(hit_result.point, direction), max_depth - 1, world)
-        } else {
-            let unit_direction = ray.direction().unit_vector();
-            let t = 0.5 * (unit_direction.y() + 1.0);
-            (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
+            if let Some(scatter_result) = hit_result.scatter_result {
+                return scatter_result.attenuation
+                    * Self::ray_color(&scatter_result.scattered, max_depth - 1, world);
+            }
+            return Color::new(0.0, 0.0, 0.0);
         }
+
+        let unit_direction = ray.direction().unit_vector();
+        let t = 0.5 * (unit_direction.y() + 1.0);
+        (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
     }
 
     fn get_ray(&self, i: u32, j: u32) -> Ray {

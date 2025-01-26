@@ -1,3 +1,4 @@
+use crate::material::ScatterResult;
 use crate::math::interval::Interval;
 use crate::point::Point3;
 use crate::ray::Ray;
@@ -9,6 +10,7 @@ pub struct HitRecord {
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
+    pub scatter_result: Option<ScatterResult>,
 }
 
 impl HitRecord {
