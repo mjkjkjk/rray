@@ -30,6 +30,8 @@ impl Camera {
         samples_per_pixel: u32,
         max_depth: u32,
     ) -> Self {
+        println!("depth: {}", max_depth);
+        println!("samples: {}", samples_per_pixel);
         let image_height = (image_width as f64 / aspect_ratio) as u32;
 
         let center = Point3::new(0.0, 0.0, 0.0);
@@ -87,7 +89,7 @@ impl Camera {
             return Color::new(0.0, 0.0, 0.0);
         }
 
-        if let Some(hit_result) = world.hit(ray, Interval::new(0.01, f64::INFINITY)) {
+        if let Some(hit_result) = world.hit(ray, Interval::new(0.001, f64::INFINITY)) {
             if let Some(scatter_result) = hit_result.scatter_result {
                 return scatter_result.attenuation
                     * Self::ray_color(&scatter_result.scattered, max_depth - 1, world);

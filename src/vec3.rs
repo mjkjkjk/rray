@@ -201,7 +201,7 @@ pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
 }
 
 pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
-    v - 2.0 * dot(v, n) * n
+    v - (2.0 * dot(v, n) * n)
 }
 
 pub fn dot(u: Vec3, v: Vec3) -> f64 {
