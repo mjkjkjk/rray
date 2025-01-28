@@ -1,7 +1,7 @@
 use clap::{command, Parser};
 use color::Color;
 use hittable_list::HittableList;
-use material::{Lambertian, Metal};
+use material::{Dielectric, Lambertian, Metal};
 use point::Point3;
 use scene::camera::Camera;
 use sphere::Sphere;
@@ -44,7 +44,7 @@ fn main() -> std::io::Result<()> {
     let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
     let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
     let material_left = Metal::new(Color::new(1.0, 1.0, 1.0), 0.3);
-    let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0);
+    let material_right = Dielectric::new(1.5);
 
     let world: HittableList = vec![
         Box::new(Sphere::new(

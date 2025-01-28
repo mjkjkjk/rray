@@ -164,10 +164,6 @@ impl Vec3 {
         dot(self, other)
     }
 
-    pub fn cross(self, other: Self) -> Self {
-        cross(self, other)
-    }
-
     pub fn random() -> Self {
         Self {
             e: [random_double(), random_double(), random_double()],
@@ -188,20 +184,27 @@ impl Vec3 {
         let s = 1e-8;
         self.e[0].abs() < s && self.e[1].abs() < s && self.e[2].abs() < s
     }
-}
 
-pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
-    Vec3 {
-        e: [
-            u.e[1] * v.e[2] - u.e[2] * v.e[1],
-            u.e[2] * v.e[0] - u.e[0] * v.e[2],
-            u.e[0] * v.e[1] - u.e[1] * v.e[0],
-        ],
+    pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
+        Vec3 {
+            e: [
+                u.e[1] * v.e[2] - u.e[2] * v.e[1],
+                u.e[2] * v.e[0] - u.e[0] * v.e[2],
+                u.e[0] * v.e[1] - u.e[1] * v.e[0],
+            ],
+        }
     }
-}
-
-pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
-    v - (2.0 * dot(v, n) * n)
+    
+    pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+        v - (2.0 * dot(v, n) * n)
+    }
+    
+    pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
+        let cos_theta = dot(-uv, n).min(1.0);
+        let r_out_perp = etai_over_etat * (uv + cos_theta * n);
+        let r_out_parallel = -((1.0 - r_out_perp.length_squared()).abs().sqrt() * n);
+        r_out_perp + r_out_parallel
+    }
 }
 
 pub fn dot(u: Vec3, v: Vec3) -> f64 {
