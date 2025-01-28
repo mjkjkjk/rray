@@ -45,6 +45,7 @@ fn main() -> std::io::Result<()> {
     let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
     let material_left = Metal::new(Color::new(1.0, 1.0, 1.0), 0.3);
     let material_right = Dielectric::new(1.5);
+    let material_bubble_right = Dielectric::new(1.00 / 1.5);
 
     let world: HittableList = vec![
         Box::new(Sphere::new(
@@ -66,6 +67,11 @@ fn main() -> std::io::Result<()> {
             Point3::new(1.0, 0.0, -1.0),
             0.5,
             Box::new(material_right),
+        )),
+        Box::new(Sphere::new(
+            Point3::new(1.0, 0.0, -1.0),
+            0.4,
+            Box::new(material_bubble_right),
         )),
     ];
 

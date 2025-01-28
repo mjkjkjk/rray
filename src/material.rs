@@ -1,4 +1,4 @@
-use crate::{color::Color, hittable::HitRecord, ray::Ray, vec3::Vec3};
+use crate::{color::Color, hittable::HitRecord, math::rng::random_double, ray::Ray, vec3::Vec3};
 
 #[derive(Clone)]
 pub struct ScatterResult {
@@ -71,6 +71,13 @@ impl Dielectric {
     pub fn new(refraction_index: f64) -> Self {
         Self { refraction_index }
     }
+
+    // Schlick's approximation for reflectance
+    pub fn reflectance(cosine: f64, refraction_index: f64) -> f64 {
+        let r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+        let r0 = r0 * r0;
+        r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
+    }
 }
 
 impl Material for Dielectric {
@@ -84,12 +91,21 @@ impl Material for Dielectric {
         };
 
         let unit_direction = ray.direction().unit_vector();
-        let refracted = Vec3::refract(unit_direction, hit_record.normal, refraction_ratio);
-        let scattered = Ray::new(hit_record.point, refracted);
+
+        let cos_theta = Vec3::dot(-unit_direction, hit_record.normal).min(1.0);
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+
+        let cannot_refract = refraction_ratio * sin_theta > 1.0;
+
+        let direction = if cannot_refract || Dielectric::reflectance(cos_theta, refraction_ratio) > random_double() {
+            Vec3::reflect(unit_direction, hit_record.normal)
+        } else {
+            Vec3::refract(unit_direction, hit_record.normal, refraction_ratio)
+        };
 
         Some(ScatterResult {
             attenuation,
-            scattered,
+            scattered: Ray::new(hit_record.point, direction),
         })
     }
 }
