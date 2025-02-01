@@ -160,6 +160,21 @@ impl Vec3 {
         }
     }
 
+    pub fn random_in_unit_disk() -> Self {
+        loop {
+            let p = Self {
+                e: [
+                    random_double_range(-1.0, 1.0),
+                    random_double_range(-1.0, 1.0),
+                    0.0,
+                ],
+            };
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
     pub fn dot(self, other: Self) -> f64 {
         dot(self, other)
     }
@@ -194,11 +209,11 @@ impl Vec3 {
             ],
         }
     }
-    
+
     pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
         v - (2.0 * dot(v, n) * n)
     }
-    
+
     pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
         let cos_theta = dot(-uv, n).min(1.0);
         let r_out_perp = etai_over_etat * (uv + cos_theta * n);

@@ -1,7 +1,8 @@
 use clap::{command, Parser};
 use color::Color;
 use hittable_list::HittableList;
-use material::{Dielectric, Lambertian, Metal};
+use material::{Dielectric, Lambertian, Material, Metal};
+use math::rng::{random_double, random_double_range};
 use point::Point3;
 use scene::camera::Camera;
 use sphere::Sphere;
@@ -42,49 +43,73 @@ fn main() -> std::io::Result<()> {
 
     let depth = args.depth.unwrap_or(4);
     let samples = args.samples.unwrap_or(16);
-    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
-    let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
-    let material_left = Metal::new(Color::new(1.0, 1.0, 1.0), 0.3);
-    let material_right = Dielectric::new(1.5);
-    let material_bubble_right = Dielectric::new(1.00 / 1.5);
 
-    let world: HittableList = vec![
-        Box::new(Sphere::new(
-            Point3::new(0.0, -100.5, -1.0),
-            100.0,
-            Box::new(material_ground),
-        )),
-        Box::new(Sphere::new(
-            Point3::new(0.0, 0.0, -1.0),
-            0.5,
-            Box::new(material_center),
-        )),
-        Box::new(Sphere::new(
-            Point3::new(-1.0, 0.0, -1.0),
-            0.5,
-            Box::new(material_left),
-        )),
-        Box::new(Sphere::new(
-            Point3::new(1.0, 0.0, -1.0),
-            0.5,
-            Box::new(material_right),
-        )),
-        Box::new(Sphere::new(
-            Point3::new(1.0, 0.0, -1.0),
-            0.4,
-            Box::new(material_bubble_right),
-        )),
-    ];
+    let ground_material = Lambertian::new(Color::new(0.5, 0.5, 0.5));
+
+    let mut world = HittableList::new();
+
+    world.push(Box::new(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Box::new(ground_material),
+    )));
+
+    for i in -9..9 {
+        for j in -9..9 {
+            let radius = random_double_range(0.0, 0.3);
+            let choose_mat = random_double();
+            let center = Point3::new(
+                i as f64 + 0.9 * random_double(),
+                radius,
+                j as f64 + 0.9 * random_double(),
+            );
+
+            if (center - Point3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                let sphere_material: Box<dyn Material> = if choose_mat < 0.8 {
+                    let albedo = Color::random() * Color::random();
+                    Box::new(Lambertian::new(albedo))
+                } else if choose_mat < 0.95 {
+                    let albedo = Color::random();
+                    Box::new(Metal::new(albedo, 0.5 * random_double()))
+                } else {
+                    Box::new(Dielectric::new(1.5))
+                };
+
+                let sphere = Sphere::new(center, radius, sphere_material);
+                world.push(Box::new(sphere));
+            }
+        }
+    }
+
+    world.push(Box::new(Sphere::new(
+        Point3::new(0.0, 1.0, 0.0),
+        1.0,
+        Box::new(Dielectric::new(1.5)),
+    )));
+
+    world.push(Box::new(Sphere::new(
+        Point3::new(-4.0, 1.0, 0.0),
+        1.0,
+        Box::new(Lambertian::new(Color::new(0.4, 0.2, 0.1))),
+    )));
+
+    world.push(Box::new(Sphere::new(
+        Point3::new(4.0, 1.0, 0.0),
+        1.0,
+        Box::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0)),
+    )));
 
     let camera = Camera::new(
         image_width,
         aspect_ratio,
         samples,
         depth,
-        60.0,
-        Point3::new(1.0, 0.5, 1.0),
-        Point3::new(0.0, 0.0, -1.0),
+        20.0,
+        Point3::new(13.0, 2.0, 3.0),
+        Point3::new(0.0, 0.0, 0.0),
         Vec3::new(0.0, 1.0, 0.0),
+        0.6,
+        10.0,
     );
     camera.render(&world, &mut file);
 
