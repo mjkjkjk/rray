@@ -20,15 +20,16 @@ pub struct Camera {
     samples_per_pixel: u32,
     pixel_samples_scale: f64,
     max_depth: u32,
+    vfov: f64,
 }
 
 impl Camera {
     pub fn new(
         image_width: u32,
         aspect_ratio: f64,
-        _center: Point3,
         samples_per_pixel: u32,
         max_depth: u32,
+        vfov: f64,
     ) -> Self {
         println!("depth: {}", max_depth);
         println!("samples: {}", samples_per_pixel);
@@ -38,7 +39,9 @@ impl Camera {
 
         // determine viewport dimensions
         let focal_length = 1.0;
-        let viewport_height = 2.0;
+        let theta = vfov.to_radians();
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h * focal_length;
         let viewport_width = aspect_ratio * viewport_height;
 
         // calculate the vectors across the horizontal and down the vertical viewport edges
@@ -64,6 +67,7 @@ impl Camera {
             samples_per_pixel,
             pixel_samples_scale: 1.0 / samples_per_pixel as f64,
             max_depth,
+            vfov,
         }
     }
 

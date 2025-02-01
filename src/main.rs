@@ -75,8 +75,13 @@ fn main() -> std::io::Result<()> {
         )),
     ];
 
-    let camera_center: Point3 = Point3::new(0.0, 0.0, 0.0);
-    let camera = Camera::new(image_width, aspect_ratio, camera_center, samples, depth);
+    let camera = Camera::new(
+        image_width,
+        aspect_ratio,
+        samples,
+        depth,
+        90.0,
+    );
     camera.render(&world, &mut file);
 
     println!("Done.");
