@@ -6,6 +6,7 @@ use point::Point3;
 use scene::camera::Camera;
 use sphere::Sphere;
 use std::fs::File;
+use vec3::Vec3;
 
 mod color;
 mod hittable;
@@ -80,7 +81,10 @@ fn main() -> std::io::Result<()> {
         aspect_ratio,
         samples,
         depth,
-        90.0,
+        60.0,
+        Point3::new(1.0, 0.5, 1.0),
+        Point3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 1.0, 0.0),
     );
     camera.render(&world, &mut file);
 
