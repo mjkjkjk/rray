@@ -1,5 +1,5 @@
 use crate::hittable::{HitRecord, Hittable};
-use crate::material::{Material, ScatterResult};
+use crate::material::{Material};
 use crate::math::interval::Interval;
 use crate::point::Point3;
 use crate::ray::Ray;
