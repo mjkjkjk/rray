@@ -1,6 +1,8 @@
 use std::fs::File;
 use std::io::Write;
 
+use rayon::prelude::*;
+
 use crate::color::{write_color, Color};
 use crate::hittable::Hittable;
 use crate::hittable_list::HittableList;
@@ -91,17 +93,17 @@ impl Camera {
         // header
         writeln!(file, "P3\n{} {}\n255", self.image_width, self.image_height).unwrap();
 
-        for j in 0..self.image_height {
+        (0..self.image_height).for_each(|j| {
             println!("Scanlines remaining: {}", self.image_height - j);
-            for i in 0..self.image_width {
+            (0..self.image_width).for_each(|i| {
                 let mut pixel_color = Color::new(0.0, 0.0, 0.0);
                 for _ in 0..self.samples_per_pixel {
                     let r = self.get_ray(i, j);
                     pixel_color += Self::ray_color(&r, self.max_depth, world);
                 }
                 write_color(&mut file, pixel_color * self.pixel_samples_scale).unwrap();
-            }
-        }
+            });
+        });
     }
 
     fn ray_color(ray: &Ray, max_depth: u32, world: &HittableList) -> Color {
