@@ -31,22 +31,18 @@ struct Args {
 
     #[arg(short, long)]
     samples: Option<u32>,
+
+    #[arg(short, long)]
+    width: Option<u32>,
+
+    #[arg(short, long)]
+    height: Option<u32>,
 }
 
-fn main() -> std::io::Result<()> {
-    let aspect_ratio: f64 = 16.0 / 9.0;
-    let image_width: u32 = 700;
-
-    let args = Args::parse();
-
-    let mut file = File::create(&args.output_file)?;
-
-    let depth = args.depth.unwrap_or(4);
-    let samples = args.samples.unwrap_or(16);
+fn initialize_world() -> HittableList {
+    let mut world = HittableList::new();
 
     let ground_material = Lambertian::new(Color::new(0.5, 0.5, 0.5));
-
-    let mut world = HittableList::new();
 
     world.push(Box::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
@@ -99,9 +95,24 @@ fn main() -> std::io::Result<()> {
         Box::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0)),
     )));
 
+    world
+}
+
+fn main() -> std::io::Result<()> {
+    let args = Args::parse();
+    let image_width: u32 = args.width.unwrap_or(700);
+    let image_height: u32 = args.height.unwrap_or(400);
+
+    let mut file = File::create(&args.output_file)?;
+
+    let depth = args.depth.unwrap_or(4);
+    let samples = args.samples.unwrap_or(16);
+
+    let world = initialize_world();
+
     let camera = Camera::new(
         image_width,
-        aspect_ratio,
+        image_height,
         samples,
         depth,
         20.0,

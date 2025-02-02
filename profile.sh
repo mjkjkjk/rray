@@ -1,3 +1,3 @@
 cargo build --release
 
-samply record ./target/release/rray --output-file image.ppm
+samples record ./target/release/rray --output-file image.ppm --width 1100 --height 500

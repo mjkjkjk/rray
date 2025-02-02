@@ -30,7 +30,7 @@ pub struct Camera {
 impl Camera {
     pub fn new(
         image_width: u32,
-        aspect_ratio: f64,
+        image_height: u32,
         samples_per_pixel: u32,
         max_depth: u32,
         vfov: f64,
@@ -40,9 +40,7 @@ impl Camera {
         defocus_angle: f64,
         focus_dist: f64,
     ) -> Self {
-        println!("depth: {}", max_depth);
-        println!("samples: {}", samples_per_pixel);
-        let image_height = (image_width as f64 / aspect_ratio) as u32;
+        let aspect_ratio = image_width as f64 / image_height as f64;
 
         let center = lookfrom;
 
