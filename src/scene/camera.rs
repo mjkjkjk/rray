@@ -89,21 +89,31 @@ impl Camera {
         }
     }
 
-    pub fn render(&self, world: &HittableList, mut file: &mut File) {
+    pub fn render(&self, world: &HittableList, file: &mut File) {
         // header
         writeln!(file, "P3\n{} {}\n255", self.image_width, self.image_height).unwrap();
 
-        (0..self.image_height).for_each(|j| {
-            println!("Scanlines remaining: {}", self.image_height - j);
-            (0..self.image_width).for_each(|i| {
-                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-                for _ in 0..self.samples_per_pixel {
-                    let r = self.get_ray(i, j);
-                    pixel_color += Self::ray_color(&r, self.max_depth, world);
-                }
-                write_color(&mut file, pixel_color * self.pixel_samples_scale).unwrap();
-            });
-        });
+        let pixels: Vec<Color> = (0..self.image_height)
+            .into_par_iter()
+            .flat_map(|j| {
+                (0..self.image_width)
+                    .into_par_iter()
+                    .map(|i| {
+                        let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+                        for _ in 0..self.samples_per_pixel {
+                            let r = self.get_ray(i, j);
+                            pixel_color += Self::ray_color(&r, self.max_depth, world);
+                        }
+                        pixel_color * self.pixel_samples_scale
+                    })
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+
+        // all pixels at once
+        for pixel_color in pixels {
+            write_color(file, pixel_color).unwrap();
+        }
     }
 
     fn ray_color(ray: &Ray, max_depth: u32, world: &HittableList) -> Color {
